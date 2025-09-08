@@ -1,6 +1,7 @@
 # Note that this script can accept some limited command-line arguments, run
 # `julia build_tarballs.jl --help` to see a usage message.
 using BinaryBuilder
+using Pkg
 
 name = "Gumbo"
 version = v"0.10.2" # <-- This version number is a lie to build for experimental platforms
@@ -16,6 +17,8 @@ sources = [
 
 # Bash recipe for building across all platforms
 script = raw"""
+export PATH="${bindir}:${PATH}"
+
 cd $WORKSPACE/srcdir/gumbo-parser/
 ./autogen.sh
 ./configure --prefix=${prefix} --build=${MACHTYPE} --host=${target}
@@ -33,7 +36,8 @@ products = [
 ]
 
 # Dependencies that must be installed before this package can be built
-dependencies = Dependency[
+dependencies = [
+    BuildDependency(PackageSpec(name="autoconf_jll", version=v"2.71")),
 ]
 
 # Build the tarballs, and possibly a `build.jl` as well.
